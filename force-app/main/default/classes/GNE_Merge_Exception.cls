@@ -1,0 +1,1 @@
+public class GNE_Merge_Exception extends Exception { }

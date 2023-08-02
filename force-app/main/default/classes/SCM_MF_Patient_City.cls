@@ -1,0 +1,116 @@
+//condition is as  follows
+//Join Case.Patient_gne__c to Patient.PatientID_gne__c and join Patient.PatientID_gne__c to Patient Address.Patient_gne__c to return a list of Patient Address objects.
+//If count of Patient Address = 0, then merge ""
+//If count of Patient Address = 1, then merge Patient Address.City_gne__c
+//If count of Patient Address > 1, then return a list of Patient Address objects where Patient Address.Primary_address_gne__c = Yes
+   //If count of Patient Address = 0, then select the last updated Patient Address
+   //If count of Patient Address = 1, then merge Patient Address.City_gne__c
+   //If count of Patient Address > 1, the return a list of Patient.Address_type_gne__c where Patient Address.Address_Type_gne__c = Mailing address
+      //If count of Patient Address = 1, then merge Patient Address.City_gne__c
+      //If count of Patient Address > 1, then select by Last Updated date, the Patient Address from which Patient Address.City_gne__c
+      //If count of Patient Address = 0, then return a list of Patient.Address_type_gne__c where Patient Address.Address_Type_gne__c = Home Address
+         //If count of Patient Address = 1, then merge Patient Address.City_gne__c
+         //If count of Patient Address > 1, then select by Last Updated date, the Patient Address from which Patient Address.City_gne__c
+         //If count of Patient Address = 0, then select the last updated Patient Address
+   
+public class SCM_MF_Patient_City extends SCM_MergeField
+ {
+   public SCM_MF_Patient_City(String patientIdLocal)
+   {
+      checked=false;
+      displayCheck=false;
+      displayTextBox=false;
+      displayLabel=false;
+      Key='PatientCity';
+      className='SCm_MF_Patient_City';
+      fieldValue = obtainPatientCity(patientIdLocal);
+   
+   }
+    public String obtainPatientCity(String patientIdLocal)
+    {
+    	try {
+       String returnString='';
+       List<Patient_Address_gne__c> patientList = [Select p.Patient_gne__r.Patient_ID_gne__c, p.Patient_gne__c, p.City_gne__c 
+                                                   From Patient_Address_gne__c p
+                                       where p.Patient_gne__r.Patient_ID_gne__c= :patientIdLocal order by p.LastModifiedDate desc LIMIT 500];
+                                       
+         if(patientList.size()==0)
+        {
+         //do nothing
+        }
+        else if(patientList.size()==1)
+        {
+         returnString=patientList[0].City_gne__c;
+        }
+        else //if there are more that 1 objects
+        {
+          List<Patient_Address_gne__c> patientListWithAddressyes=[Select p.Patient_gne__r.Patient_ID_gne__c, p.Patient_gne__c, p.City_gne__c 
+	         From Patient_Address_gne__c p where p.Patient_gne__r.Patient_ID_gne__c = :patientIdLocal 
+	         and p.Primary_Address_gne__c = 'Yes' order by p.LastModifiedDate desc LIMIT 500];
+            
+            
+            //traverse through patientListWithAddressyes objects
+		        if(patientListWithAddressyes.size()==0)
+		        {
+		          returnString='';
+		        }
+		        else if(patientListWithAddressyes.size()==1)
+		        {
+		         returnString=patientListWithAddressyes[0].City_gne__c;
+		        }
+		        else
+                {
+                 List<Patient_Address_gne__c> patientListWithMail=[Select p.Patient_gne__r.Patient_ID_gne__c, p.Patient_gne__c, p.City_gne__c 
+	       										  From Patient_Address_gne__c p where p.Patient_gne__r.Patient_ID_gne__c= :patientIdLocal and 
+	        									  p.Type_gne__c = 'Mailing' order by p.LastModifiedDate desc LIMIT 500];
+	        									  
+	        			if(patientListWithMail.size()==1)
+                        {
+                             returnString=patientListWithMail[0].City_gne__c ;
+                        }
+                        else if(patientListWithMail.size()>1)
+                        {
+                        	returnString=patientListWithMail[0].City_gne__c;
+                        }
+                        else 
+                        {
+                               List<Patient_Address_gne__c> patientListWithHomeAddress=[Select p.Patient_gne__r.Patient_ID_gne__c, p.Patient_gne__c, p.City_gne__c 
+	       										  From Patient_Address_gne__c p where p.Patient_gne__r.Patient_ID_gne__c = :patientIdLocal and 
+	        									p.Type_gne__c = 'Home' order by p.LastModifiedDate desc LIMIT 500
+	        									 ];
+	        							     if(patientListWithHomeAddress.size()==1)
+									        {
+									         returnString=patientListWithHomeAddress[0].City_gne__c;
+									        }	
+									        else if(patientListWithHomeAddress.size()>1)
+									        {
+									         returnString=patientListWithHomeAddress[0].City_gne__c;
+									        }
+									        else
+									        {
+									         returnString='';
+									        }
+									        	 
+	        									 
+                        }
+		        
+                }
+        }
+        
+       if(returnString==null)
+       {
+        returnString='';
+       }
+        
+       return returnString;
+    }
+     catch (exception ex) {
+   	return '';
+   }
+    }
+   
+   public override String getFieldvalue()
+   {
+    return fieldValue;
+   }
+}

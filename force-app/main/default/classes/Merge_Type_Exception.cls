@@ -1,0 +1,1 @@
+public class Merge_Type_Exception extends Exception { }
