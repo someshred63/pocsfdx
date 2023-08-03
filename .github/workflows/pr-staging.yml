@@ -29,7 +29,7 @@ jobs:
         ./sfdx-cli/install
    # Runs a set of commands using the runners shell
     - name: 'Decrypt file'
-      run: openssl enc -nosalt -aes-256-cbc -d -in Assets/server.key.enc -out server.key -base64 -K ${{secrets.DECRYPTION_KEY}} -iv ${{secrets.DECRYPTION_IV}}
+      run: openssl enc -nosalt -aes-256-cbc -d -in Assets/server.key.enc -out server.key -base64 -K DE3B4F6346E0CFA95CA695168A0FD8DA4D06AE808A0AFA9A4DBD2502D5DD6FE7 -iv AC767FEDCF2105140E84B62495C3F43A
     - name: 'Authorize'
       run: sfdx force:auth:jwt:grant --clientid=${{ secrets.CONSUMER_KEY }} --username=${{ secrets.USERNAME }} --jwtkeyfile Assets/server.key --setdefaultdevhubusername --setalias=hub-org
     - name: 'Convert Metadata'
