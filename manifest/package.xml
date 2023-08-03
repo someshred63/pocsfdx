@@ -4,6 +4,10 @@
         <members>*</members>
         <name>ApexClass</name>
     </types>
+    <types>
+        <members>*</members>
+        <name>ApexTrigger</name>
+    </types>
    
     <version>57.0</version>
 </Package>
