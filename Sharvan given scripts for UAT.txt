@@ -1,0 +1,195 @@
+**NON-PRODUCTION
+ENVIRONMENTS ONLY – DO NOT PERFORM IN PRD**
+
+
+ 
+
+
+Update Email
+Addresses in Email Alerts
+
+
+ 
+
+
+Go to: Setup | Create | Workflows & Approvals | Email Alerts
+
+
+ 
+
+
+Select the View ‘AGSPend’
+from the drop-down list.
+
+
+ 
+
+
+For all listed email templates in the view, perform the following
+steps:
+
+
+Click the ‘Edit’ Action link
+
+
+Change complianceops-d@gene.com to
+
+
+DEV (or other environments): choose the option "Current User's
+email address"
+
+
+SQA: aggs-sqa-cco-distribution-list-d@gene.com
+
+
+UAT: aggs-uat-cco-distribution-list-d@gene.com
+
+
+TRN: choose the option "Current User's email address"
+
+
+Click the checkbox ‘Make this address the default From email address for this
+object's email alerts’ to select the checkbox.
+
+
+Click ‘Save’
+Update Organization-Wide Addresses
+
+  
+Setup |
+  Administration Setup | Email Administration | Organization-Wide Addresses
+
+  
+Click the Edit link next to the Business Practices Group Display Name
+
+  
+Change email id to:
+
+  
+ 
+
+  
+DEV: dev.complianceops-d@gene.com
+
+  
+SQA: aggs-sqa-cco-distribution-list-d@gene.com
+
+  
+UAT: aggs-uat-cco-distribution-list-d@gene.com
+
+  
+TRN: dev.complianceops-d@gene.com
+
+  
+
+  
+Click the Save button.
+
+  
+ 
+
+  
+In case of error:
+
+  
+●      Email Address: Cannot complete this operation.
+  This org wide email address is referenced elsewhere in salesforce.com. :
+  Email Alerts
+
+  
+do the following:
+
+  
+   Go to Setup | Build | Create | Workflow &
+       Approvals | Email Alerts
+
+   Find these of Email Alerts, which are
+       using the current  Business Practices Group organization-wide
+       address in From Email Address
+       field. Ideally, change the view of Email alerts list, to include From Email Address column.
+
+   Temporarily - change value of From Email Address to Current User, or any other
+       address. Remember to note down modified Email Alerts for a future
+       reference (or just rely on Last Modified column).
+
+   Now, when current Business Practices
+       Group address is no longer in use in Email Alerts, you can update Business Practices Group as
+       previously described.
+
+   When Business Practices Group is successfully updated, go back to
+       Email Alerts and change the value of From
+       Email Address field of recently modified alerts, back to Business Practices Group.
+Update Organization-Wide
+  Addresses
+
+  
+Setup | Administration Setup | Email Administration |
+  Organization-Wide Addresses
+
+  
+Click the Edit link next to the Genentech Sunshine Help Desk Display
+  Name
+
+  
+Change email id to:
+
+  
+ 
+
+  
+DEV: sunshinetool-dev-d@gene.com
+
+  
+SQA: sunshinetool-sqa-d@gene.com
+
+  
+UAT: sunshinetool-uat-d@gene.com
+
+  
+TRN: sunshinetool-dev-d@gene.com
+
+  
+ 
+
+  
+Click the Save button.
+1.       
+   
+
+  
+  
+
+  
+Run following script from
+  developer console
+
+  
+ 
+
+  
+String envSufix = '.test';
+
+  List<AGS_ST_DisputeManagement_gne__c> dispManagementList = [select id,
+  Preferred_communication_value_gne__c from AGS_ST_DisputeManagement_gne__c];
+
+  for(AGS_ST_DisputeManagement_gne__c dispManagement : dispManagementList) {
+
+   dispManagement.Preferred_communication_value_gne__c =
+  dispManagement.Preferred_communication_value_gne__c + envSufix;
+
+  } 
+
+  
+List<AGS_ST_User_gne__c> stUsers = [Select id, Email_address__c
+  from AGS_ST_User_gne__c];
+
+  for(AGS_ST_User_gne__c stUser: stUsers) {
+
+   stUser.Email_address__c  = stUser.Email_address__c + envSufix;
+
+  }
+
+  
+update stUsers;
+
+  update dispManagementList;
