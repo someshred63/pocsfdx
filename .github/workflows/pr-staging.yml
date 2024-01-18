@@ -10,29 +10,13 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  SFDX-CLI-Deploy:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-
-    # Runs a single command using the runners shell
-    - name: 'Build and Deploy'
-      run: |
-        wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
-        mkdir sfdx-cli
-        tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
-        ./sfdx-cli/install
-   # Runs a set of commands using the runners shell
-    - name: 'Decrypt file'
-      run: openssl enc -nosalt -aes-256-cbc -d -in Assets/server.key.enc -out server.key -base64 -K DE3B4F6346E0CFA95CA695168A0FD8DA4D06AE808A0AFA9A4DBD2502D5DD6FE7 -iv AC767FEDCF2105140E84B62495C3F43A
-    - name: 'Authorize'
-      run: sfdx force:auth:jwt:grant --clientid 3MVG9_I_oWkIqLrnHpg_Uu6qGU5UQHeSnnN4haVtspxrxnqXLTSHGJRwQ.q7Yecg197ngeOo38agLEuZMlET5 --username kethus@gene.com.prerelea23 --jwtkeyfile server.key -r https://test.salesforce.com
-    - name: 'Convert Metadata'
-      run: sfdx force:source:convert --rootdir=force-app --outputdir=convert
-    - name: 'Run Test on Metadata'
-      run: sfdx force:mdapi:deploy --deploydir=convert -u kethus@gene.com.prerelea23
+      - run: echo "🐧 GitHub Action running on ${{ runner.os }}"
+      - run: echo "🔎 Retrieving ${{ github.ref }} from ${{ github.repository }}."
+      - uses: actions/checkout@v2
+      - run: npm install sfdx-cli -g
+      - run: echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+      - run: sfdx force:auth:jwt:grant --clientid=${{ secrets.SALESFORCE_CONSUMER_KEY }} --jwtkeyfile=server.key --username=${{ secrets.SALESFORCE_DEVHUB_USERNAME }} --setdefaultdevhubusername
+      - run: sfdx force:source:deploy --manifest=manifest/package.xml --testlevel=RunLocalTests -u ${{ secrets.SALESFORCE_DEVHUB_USERNAME }}
